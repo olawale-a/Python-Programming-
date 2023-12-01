@@ -1,0 +1,55 @@
+import pandas as pd
+
+# Task 1: Reading data from multiple sources
+def read_data(file_paths):
+    dataframes = []
+    for file_path in file_paths:
+        try:
+            data = pd.read_csv(file_path)  # Adjust based on your data format
+            dataframes.append((file_path, data))
+        except FileNotFoundError:
+            print(f"File not found: {file_path}")
+        except pd.errors.EmptyDataError:
+            print(f"Empty file: {file_path}")
+        except pd.errors.ParserError:
+            print(f"Unable to parse data in file: {file_path}")
+
+    return dataframes
+
+# Task 2: Data comparison and validation
+def compare_data(dataframes):
+    # Assume the first dataframe as the reference
+    reference_path, reference_data = dataframes[0]
+    
+    for path, data in dataframes[1:]:
+        if not reference_data.equals(data):
+            print(f"Data in {reference_path} is different from {path}")
+
+# Task 3: Logging and reporting
+def log_and_report(message):
+    with open('data_integrity_log.txt', 'a') as log_file:
+        log_file.write(f"{message}\n")
+    print(message)
+
+# Main function to orchestrate the workflow
+def main():
+    # Replace file paths with the actual paths to your data files
+    file_paths = ['file1.csv', 'file2.csv', 'file3.csv']
+
+    # Task 1: Reading data from multiple sources
+    dataframes = read_data(file_paths)
+
+    if len(dataframes) < 2:
+        log_and_report("Insufficient data for comparison.")
+        return
+
+    # Task 2: Data comparison and validation
+    compare_data(dataframes)
+
+    log_and_report("Data integrity check completed.")
+
+if __name__ == "__main__":
+    main()
+
+# Replace the file paths in file_paths with the actual paths to your data files. 
+# The script reads data from multiple sources, compares them, and logs any discrepancies
