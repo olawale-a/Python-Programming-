@@ -1,0 +1,83 @@
+pip install schedule
+
+import schedule
+import time
+import os
+import platform
+
+def clear_screen():
+    """Clear the terminal or command prompt screen."""
+    system = platform.system()
+    if system == "Windows":
+        os.system("cls")
+    elif system == "Linux" or system == "Darwin":
+        os.system("clear")
+
+def show_menu():
+    """Display the main menu options."""
+    print("1. Schedule a Task")
+    print("2. View Scheduled Tasks")
+    print("3. Exit")
+
+def schedule_task():
+    """Schedule a task and set a reminder."""
+    task_name = input("Enter the task name: ")
+    task_time = input("Enter the task time (HH:MM format): ")
+
+    try:
+        # Parse user input time
+        hour, minute = map(int, task_time.split(":"))
+
+        # Schedule the task
+        schedule.every().day.at(f"{hour:02d}:{minute:02d}").do(show_reminder, task_name)
+
+        print(f"Task '{task_name}' scheduled at {task_time}!")
+
+    except ValueError:
+        print("Invalid time format. Use HH:MM.")
+
+def show_reminder(task_name):
+    """Display a reminder when a task is due."""
+    clear_screen()
+    print(f"Reminder: Task '{task_name}' is due now!\n")
+
+def view_scheduled_tasks():
+    """View the list of scheduled tasks."""
+    scheduled_jobs = schedule.get_jobs()
+
+    if not scheduled_jobs:
+        print("No tasks scheduled.")
+    else:
+        print("Scheduled Tasks:")
+        for job in scheduled_jobs:
+            print(f"{job.next_run}: {job.job_func.__name__}")
+
+def main():
+    while True:
+        clear_screen()
+        show_menu()
+
+        choice = input("Enter your choice (1/2/3): ")
+
+        if choice == "1":
+            schedule_task()
+        elif choice == "2":
+            view_scheduled_tasks()
+            input("Press Enter to continue...")
+        elif choice == "3":
+            print("Exiting the application. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
+            input("Press Enter to continue...")
+
+        # Run the scheduled tasks
+        schedule.run_pending()
+        time.sleep(1)
+
+if __name__ == "__main__":
+    main()
+
+# This script uses the schedule library to schedule tasks at specific times.
+# Provides a simple command-line interface with options to schedule tasks, view scheduled tasks, and exit the application.
+# The tasks are displayed as reminders when they are due.
