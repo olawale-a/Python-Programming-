@@ -1,0 +1,98 @@
+pip install yfinance matplotlib
+
+import yfinance as yf
+import matplotlib.pyplot as plt
+import pandas as pd
+import datetime
+
+class StockPortfolio:
+    def __init__(self):
+        self.portfolio = {}
+
+    def add_stock(self, symbol, quantity, purchase_price):
+        if symbol in self.portfolio:
+            print(f"{symbol} is already in the portfolio.")
+        else:
+            self.portfolio[symbol] = {'Quantity': quantity, 'Purchase Price': purchase_price}
+
+    def remove_stock(self, symbol):
+        if symbol in self.portfolio:
+            del self.portfolio[symbol]
+            print(f"{symbol} removed from the portfolio.")
+        else:
+            print(f"{symbol} not found in the portfolio.")
+
+    def display_portfolio(self):
+        print("Stock Portfolio:")
+        for symbol, data in self.portfolio.items():
+            print(f"{symbol}: Quantity - {data['Quantity']}, Purchase Price - {data['Purchase Price']}")
+
+    def analyze_portfolio(self):
+        data = pd.DataFrame()
+
+        for symbol, info in self.portfolio.items():
+            stock_data = yf.download(symbol, start="2022-01-01", end=datetime.datetime.today().strftime('%Y-%m-%d'))
+            stock_data['Symbol'] = symbol
+            data = pd.concat([data, stock_data])
+
+        if data.empty:
+            print("No data available for the portfolio.")
+            return
+
+        data['Investment'] = data['Close'] * data['Quantity']
+        data = data.pivot_table(values='Investment', index='Date', columns='Symbol', aggfunc='sum')
+        data.fillna(0, inplace=True)
+
+        # Plot the portfolio performance
+        plt.figure(figsize=(12, 6))
+        for symbol in data.columns:
+            plt.plot(data.index, data[symbol], label=symbol)
+
+        plt.title('Stock Portfolio Performance')
+        plt.xlabel('Date')
+        plt.ylabel('Investment Value')
+        plt.legend()
+        plt.show()
+
+def main():
+    portfolio = StockPortfolio()
+
+    while True:
+        print("\nStock Portfolio Tracker")
+        print("1. Add Stock")
+        print("2. Remove Stock")
+        print("3. Display Portfolio")
+        print("4. Analyze Portfolio")
+        print("5. Exit")
+
+        choice = input("Enter your choice (1/2/3/4/5): ")
+
+        if choice == "1":
+            symbol = input("Enter stock symbol: ").upper()
+            quantity = float(input("Enter quantity: "))
+            purchase_price = float(input("Enter purchase price per share: "))
+            portfolio.add_stock(symbol, quantity, purchase_price)
+
+        elif choice == "2":
+            symbol = input("Enter stock symbol to remove: ").upper()
+            portfolio.remove_stock(symbol)
+
+        elif choice == "3":
+            portfolio.display_portfolio()
+
+        elif choice == "4":
+            portfolio.analyze_portfolio()
+
+        elif choice == "5":
+            print("Exiting the Stock Portfolio Tracker. Goodbye!")
+            break
+
+        else:
+            print("Invalid choice. Please enter 1, 2, 3, 4, or 5.")
+
+if __name__ == "__main__":
+    main()
+
+# This script defines a StockPortfolio class with methods for adding and removing stocks, displaying the portfolio, and analyzing its performance
+# Uses the yfinance library to download stock data and matplotlib for data visualization
+# Users can interact with the program through a simple command-line interface.
