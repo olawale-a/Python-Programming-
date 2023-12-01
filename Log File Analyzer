@@ -1,0 +1,65 @@
+import re
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Task 1: Parse log files to extract relevant information
+def parse_log_file(file_path):
+    with open(file_path, 'r') as file:
+        log_data = file.readlines()
+
+    # Define a regular expression pattern to extract relevant information
+    log_pattern = r'(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}) - (\w+): (.+)'
+
+    log_entries = []
+    for line in log_data:
+        match = re.match(log_pattern, line)
+        if match:
+            timestamp, event_type, user_action = match.groups()
+            log_entries.append({'Timestamp': timestamp, 'Event Type': event_type, 'User Action': user_action})
+
+    return pd.DataFrame(log_entries)
+
+# Task 2: Count occurrences of specific events or actions
+def count_events(data):
+    event_counts = data['Event Type'].value_counts()
+    return event_counts
+
+# Task 3: Identify patterns or anomalies in the log data
+def identify_anomalies(data):
+    # Example: Check for unusual timestamps or user actions
+    anomalies = data[(data['Timestamp'] < '2023-01-01') | (data['User Action'].str.contains('unusual_pattern'))]
+    return anomalies
+
+# Task 4: Generate a summary report or visualizations
+def generate_summary(data, event_counts):
+    print("Event Counts:")
+    print(event_counts)
+
+    # Example: Visualize event counts
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=event_counts.index, y=event_counts.values)
+    plt.title('Event Counts')
+    plt.xlabel('Event Type')
+    plt.ylabel('Count')
+    plt.show()
+
+# Main function to orchestrate the workflow
+def main():
+    # Replace 'your_log_file.txt' with the actual path to your log file
+    log_file_path = 'your_log_file.txt'
+
+    # Task 1: Parse log files
+    log_data = parse_log_file(log_file_path)
+
+    # Task 2: Count occurrences of specific events or actions
+    event_counts = count_events(log_data)
+
+    # Task 3: Identify patterns or anomalies in the log data
+    anomalies = identify_anomalies(log_data)
+
+    # Task 4: Generate a summary report or visualizations
+    generate_summary(log_data, event_counts)
+
+if __name__ == "__main__":
+    main()
